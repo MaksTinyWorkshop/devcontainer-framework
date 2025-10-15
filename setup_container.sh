@@ -95,11 +95,26 @@ for FILE in devcontainer.json Dockerfile compose.dev.yml; do
 done
 
 # --- 6️⃣ Remplacement des placeholders ---
-find "$TMP_DIR" -type f -exec sed -i.bak "s/DEVPROJECT/${PROJECT_NAME}/g" {} + && find "$TMP_DIR" -name "*.bak" -delete
+echo "🔧 Configuration du template..."
+find "$TMP_DIR" -type f \( -name "*.json" -o -name "*.yml" -o -name "Dockerfile" \) | while read -r FILE; do
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/DEVPROJECT/${PROJECT_NAME}/g" "$FILE"
+  else
+    sed -i "s/DEVPROJECT/${PROJECT_NAME}/g" "$FILE"
+  fi
+done
 
 if [[ "$PROJECT_TYPE" == "node-db" ]]; then
-  sed -i "s/DEV_DB_USER/${DB_USER}/g" "$TMP_DIR/compose.dev.yml"
-  sed -i "s/DEV_DB_PASS/${DB_PASS}/g" "$TMP_DIR/compose.dev.yml"
+  echo "🔧 Configuration des identifiants DB..."
+  for VAR in DB_USER DB_PASS; do
+    VAL=${!VAR}
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      sed -i '' "s/DEV_${VAR}/${VAL}/g" "$TMP_DIR/compose.dev.yml"
+    else
+      sed -i "s/DEV_${VAR}/${VAL}/g" "$TMP_DIR/compose.dev.yml"
+    fi
+  done
+
   if [[ "$DB_EXTERNAL" == "true" ]]; then
     docker volume create "devcontainer_${PROJECT_NAME}_db_data" >/dev/null
     echo "    external: true" >> "$TMP_DIR/compose.dev.yml"
