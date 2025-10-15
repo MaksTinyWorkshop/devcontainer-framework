@@ -17,6 +17,10 @@ if [[ ! "$PROJECT_NAME" =~ ^[a-z0-9_-]+$ ]]; then
   echo "   (autorisés : lettres, chiffres, tirets, underscores)"
   exit 1
 fi
+if [[ ! "$PROJECT_NAME" =~ ^[a-z0-9] ]]; then
+  echo "❌ Le nom du projet doit commencer par une lettre ou un chiffre."
+  exit 1
+fi
 echo "✅ Nom du projet normalisé : $PROJECT_NAME"
 
 # 3️⃣ — Définition des chemins
