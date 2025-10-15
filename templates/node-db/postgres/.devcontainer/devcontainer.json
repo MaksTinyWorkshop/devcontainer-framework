@@ -16,7 +16,14 @@
         "christian-kohler.npm-intellisense",
         "christian-kohler.path-intellisense",
         "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "ms-ossdata.vscode-postgresql",
+        "mechatroner.rainbow-csv", // lecture/édition de fichiers .csv exportés depuis PostgreSQL
+        "mtxr.sqltools", // gestionnaire SQL universel avec autocomplétion et query runner
+        "mtxr.sqltools-driver-pg", // driver SQLTools pour PostgreSQL
+        "eamodio.gitlens",
+        "streetsidesoftware.code-spell-checker",
+        "mikestead.dotenv"
       ]
     }
   }

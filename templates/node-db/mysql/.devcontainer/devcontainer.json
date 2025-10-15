@@ -16,7 +16,14 @@
         "christian-kohler.npm-intellisense",
         "christian-kohler.path-intellisense",
         "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "cweijan.vscode-mysql-client2",
+        "mtxr.sqltools", // outil SQL universel
+        "mtxr.sqltools-driver-mysql", // driver SQLTools pour MySQL
+        "mechatroner.rainbow-csv", // pour importer/exporter facilement des données CSV
+        "eamodio.gitlens",
+        "streetsidesoftware.code-spell-checker",
+        "mikestead.dotenv"
       ]
     }
   }
