@@ -87,6 +87,13 @@ echo "✅ Nom du projet normalisé : $PROJECT_NAME"
 # 3️⃣ — Définition des chemins
 VOLUME_NAME="devcontainer_${PROJECT_NAME}"
 TMP_DIR="/tmp/${PROJECT_NAME}"
+
+# Vérification de l'existence et des droits d'écriture sur LAUNCHER_BASE
+if [[ ! -d "$LAUNCHER_BASE" || ! -w "$LAUNCHER_BASE" ]]; then
+  echo "❌ Le chemin $LAUNCHER_BASE n’existe pas ou n’est pas accessible en écriture."
+  exit 1
+fi
+
 LAUNCHER_DIR="${LAUNCHER_BASE}/${PROJECT_NAME}"
 
 # 4️⃣ — Création du volume Docker
@@ -176,8 +183,8 @@ if [ -n "$REPO_URL" ]; then
       apt-get install -y git ca-certificates >/dev/null 2>&1 &&
       mkdir -p /workspace &&
       echo '➡️  Clonage de $REPO_URL ...' &&
-      git clone --depth=1 '$REPO_URL' /workspace || echo '⚠️  Échec du clonage. Vérifie les credentials ou la connectivité.' &&
-      chown -R 1000:1000 /workspace
+      git clone --depth=1 '$REPO_URL' /workspace/${PROJECT_NAME} || echo '⚠️  Échec du clonage. Vérifie les credentials ou la connectivité.' &&
+      chown -R 1000:1000 /workspace/${PROJECT_NAME}
     "
   fi
 fi
