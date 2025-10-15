@@ -1,0 +1,19 @@
+{
+  "name": "DEVPROJECT Dev Container",
+  "dockerComposeFile": "compose.dev.yml",
+  "service": "DEVPROJECT",
+  "workspaceFolder": "/workspace/DEVPROJECT",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+          "christian-kohler.npm-intellisense",  
+          "christian-kohler.path-intellisense",
+          "dbaeumer.vscode-eslint",
+          "esbenp.prettier-vscode"
+      ]
+    }
+  },
+  "forwardPorts": [3000],
+  "remoteUser": "node"
+}
