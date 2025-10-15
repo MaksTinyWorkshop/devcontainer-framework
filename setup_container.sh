@@ -23,13 +23,11 @@ echo ""
 echo "🌱 Type d’environnement à créer :"
 echo "  1) Node.js"
 echo "  2) Node.js + Base de données"
-echo "  3) Python"
-read -p "👉 Choix (1-3) [1] : " ENV_CHOICE
+read -p "👉 Choix (1-2) [1] : " ENV_CHOICE
 
 case "${ENV_CHOICE:-1}" in
   1) PROJECT_TYPE="node" ;;
   2) PROJECT_TYPE="node-db" ;;
-  3) PROJECT_TYPE="python" ;;
   *) PROJECT_TYPE="node" ;;
 esac
 
@@ -59,7 +57,7 @@ if [[ "$PROJECT_TYPE" == "node-db" ]]; then
 fi
 
 read -p "URL du repo Git à cloner (facultatif) : " REPO_URL
-read -p "Chemin où stocker le launcher (défaut : /Volumes/TeraSSD/Projets_Dev) : " LAUNCHER_BASE
+read -p "Chemin où stocker le launcher en local : " LAUNCHER_BASE
 LAUNCHER_BASE=${LAUNCHER_BASE:-/Volumes/TeraSSD/Projets_Dev}
 
 # --- 2️⃣ Normalisation du nom ---
