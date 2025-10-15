@@ -19,6 +19,5 @@
         "esbenp.prettier-vscode"
       ]
     }
-  },
-  "postCreateCommand": "if [ -d /workspace/${PROJECT_NAME} ]; then code /workspace/${PROJECT_NAME}; fi"
+  }
 }

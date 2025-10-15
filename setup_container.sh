@@ -3,22 +3,20 @@ set -e
 
 echo "🌍 Bienvenue dans le setup du DevContainer Framework !"
 
-# Vérification des dépendances
-
+# --- Vérification des dépendances ---
 for cmd in docker curl code; do
   if ! command -v $cmd &> /dev/null; then
-    echo "❌ La commande '$cmd' est requise mais n'est pas installée. Veuillez l'installer avant de continuer."
+    echo "❌ La commande '$cmd' est requise mais n'est pas installée."
     exit 1
   fi
 done
 
-# Vérification que Docker est bien démarré
 if ! docker info >/dev/null 2>&1; then
-  echo "❌ Docker ne semble pas démarré. Lance Docker Desktop ou le daemon avant de continuer."
+  echo "❌ Docker n’est pas démarré."
   exit 1
 fi
 
-# 1️⃣ — Collecte d’infos
+# --- 1️⃣ Collecte d’informations ---
 read -p "Nom du projet (ex: myapp) : " RAW_PROJECT_NAME
 
 echo ""
@@ -35,10 +33,10 @@ case "${ENV_CHOICE:-1}" in
   *) PROJECT_TYPE="node" ;;
 esac
 
-# Si l’utilisateur choisit un environnement avec base de données
+# --- Gestion DB ---
 if [[ "$PROJECT_TYPE" == "node-db" ]]; then
   echo ""
-  echo "🗄️  Choisis le type de base de données :"
+  echo "🗄️ Type de base de données :"
   echo "  1) PostgreSQL"
   echo "  2) MySQL"
   echo "  3) MongoDB"
@@ -50,193 +48,101 @@ if [[ "$PROJECT_TYPE" == "node-db" ]]; then
     3) DB_TYPE="mongo" ;;
     *) DB_TYPE="postgres" ;;
   esac
-  echo "✅ Base de données sélectionnée : $DB_TYPE"
 
-  read -p "Nom d'utilisateur pour la base de données [devuser] : " DB_USER
+  read -p "Nom d'utilisateur DB [devuser] : " DB_USER
   DB_USER=${DB_USER:-devuser}
-  read -s -p "Mot de passe pour la base de données [devpass] : " DB_PASS
+  read -s -p "Mot de passe DB [devpass] : " DB_PASS
   echo ""
   DB_PASS=${DB_PASS:-devpass}
-  echo ""
-  read -p "Souhaitez-vous que la base de données soit persistante (ne pas être effacée à la suppression du conteneur) ? [Y/n] " DB_PERSIST
-  if [[ "$DB_PERSIST" =~ ^[Yy]$ || -z "$DB_PERSIST" ]]; then
-    DB_EXTERNAL="true"
-  else
-    DB_EXTERNAL="false"
-  fi
+  read -p "Persister la base de données ? [Y/n] " DB_PERSIST
+  [[ "$DB_PERSIST" =~ ^[Yy]$ || -z "$DB_PERSIST" ]] && DB_EXTERNAL="true" || DB_EXTERNAL="false"
 fi
 
 read -p "URL du repo Git à cloner (facultatif) : " REPO_URL
-read -p "Chemin où stocker le launcher local (par défaut : /Volumes/TeraSSD/Projets_Dev) : " LAUNCHER_BASE
+read -p "Chemin où stocker le launcher (défaut : /Volumes/TeraSSD/Projets_Dev) : " LAUNCHER_BASE
 LAUNCHER_BASE=${LAUNCHER_BASE:-/Volumes/TeraSSD/Projets_Dev}
 
-
-# 2️⃣ — Normalisation du nom
+# --- 2️⃣ Normalisation du nom ---
 PROJECT_NAME=$(echo "$RAW_PROJECT_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '_' | tr -cd '[:alnum:]_-')
-if [[ ! "$PROJECT_NAME" =~ ^[a-z0-9_-]+$ ]]; then
-  echo "❌ Nom invalide après normalisation : \"$PROJECT_NAME\""
-  echo "   (autorisés : lettres, chiffres, tirets, underscores)"
+if [[ ! "$PROJECT_NAME" =~ ^[a-z0-9_-]+$ || ! "$PROJECT_NAME" =~ ^[a-z0-9] ]]; then
+  echo "❌ Nom invalide : doit commencer par une lettre/chiffre et contenir a-z, 0-9, -, _"
   exit 1
 fi
-if [[ ! "$PROJECT_NAME" =~ ^[a-z0-9] ]]; then
-  echo "❌ Le nom du projet doit commencer par une lettre ou un chiffre."
-  exit 1
-fi
-echo "✅ Nom du projet normalisé : $PROJECT_NAME"
+echo "✅ Nom normalisé : $PROJECT_NAME"
 
-# 3️⃣ — Définition des chemins
+# --- 3️⃣ Préparation des chemins ---
 VOLUME_NAME="devcontainer_${PROJECT_NAME}"
 TMP_DIR="/tmp/${PROJECT_NAME}"
-
-# Vérification de l'existence et des droits d'écriture sur LAUNCHER_BASE
-if [[ ! -d "$LAUNCHER_BASE" || ! -w "$LAUNCHER_BASE" ]]; then
-  echo "❌ Le chemin $LAUNCHER_BASE n’existe pas ou n’est pas accessible en écriture."
-  exit 1
-fi
-
 LAUNCHER_DIR="${LAUNCHER_BASE}/${PROJECT_NAME}"
 
-# 4️⃣ — Création du volume Docker
-echo "📦 Création du volume Docker : $VOLUME_NAME"
+# --- 4️⃣ Création volume ---
+echo "📦 Création du volume : $VOLUME_NAME"
 docker volume create "$VOLUME_NAME" >/dev/null
-echo "📂 Vérification du volume..."
-EXISTING=$(docker volume ls -q | grep "^${VOLUME_NAME}$" || true)
-if [ -z "$EXISTING" ]; then
-  echo "❌ Le volume n’a pas pu être créé correctement. Vérifie Docker."
-  exit 1
-else
-  echo "✅ Volume confirmé : $VOLUME_NAME"
-fi
+echo "✅ Volume prêt."
 
-# 5️⃣ — Téléchargement du template depuis GitHub
-if [[ "$PROJECT_TYPE" == "node-db" && -n "$DB_TYPE" ]]; then
+# --- 5️⃣ Téléchargement du template ---
+if [[ "$PROJECT_TYPE" == "node-db" ]]; then
   TEMPLATE_PATH="node-db/${DB_TYPE}"
 else
   TEMPLATE_PATH="$PROJECT_TYPE"
 fi
 
-echo "⬇️  Téléchargement du template DevContainer ..."
-
+echo "⬇️ Téléchargement du template ${TEMPLATE_PATH}..."
 mkdir -p "$TMP_DIR"
-curl -fsSL "https://raw.githubusercontent.com/MaksTinyWorkshop/devcontainer-framework/main/templates/${TEMPLATE_PATH}/.devcontainer/devcontainer.json" \
-  -o "$TMP_DIR/devcontainer.json"
-curl -fsSL "https://raw.githubusercontent.com/MaksTinyWorkshop/devcontainer-framework/main/templates/${TEMPLATE_PATH}/.devcontainer/Dockerfile" \
-  -o "$TMP_DIR/Dockerfile"
-curl -fsSL "https://raw.githubusercontent.com/MaksTinyWorkshop/devcontainer-framework/main/templates/${TEMPLATE_PATH}/.devcontainer/compose.dev.yml" \
-  -o "$TMP_DIR/compose.dev.yml"
+for FILE in devcontainer.json Dockerfile compose.dev.yml; do
+  curl -fsSL "https://raw.githubusercontent.com/MaksTinyWorkshop/devcontainer-framework/main/templates/${TEMPLATE_PATH}/.devcontainer/${FILE}" \
+    -o "$TMP_DIR/$FILE"
+done
 
-
-# 6️⃣ — Remplacement du placeholder DEVPROJECT
+# --- 6️⃣ Remplacement des placeholders ---
 find "$TMP_DIR" -type f -exec sed -i.bak "s/DEVPROJECT/${PROJECT_NAME}/g" {} + && find "$TMP_DIR" -name "*.bak" -delete
 
-
-# 6️⃣bis — Remplacement des placeholders database
 if [[ "$PROJECT_TYPE" == "node-db" ]]; then
-  find "$TMP_DIR" -type f -exec sed -i.bak "s/DEV_DB_USER/${DB_USER}/g" {} +
-  find "$TMP_DIR" -type f -exec sed -i.bak "s/DEV_DB_PASS/${DB_PASS}/g" {} +
-  find "$TMP_DIR" -name "*.bak" -delete
-
-  # Configuration du volume DB persistant ou non
-  COMPOSE_FILE="$TMP_DIR/compose.dev.yml"
+  sed -i "s/DEV_DB_USER/${DB_USER}/g" "$TMP_DIR/compose.dev.yml"
+  sed -i "s/DEV_DB_PASS/${DB_PASS}/g" "$TMP_DIR/compose.dev.yml"
   if [[ "$DB_EXTERNAL" == "true" ]]; then
-    if grep -q "devcontainer_${PROJECT_NAME}_db_data:" "$COMPOSE_FILE"; then
-      sed -i.bak "s|devcontainer_${PROJECT_NAME}_db_data:|devcontainer_${PROJECT_NAME}_db_data:\n    external: true|" "$COMPOSE_FILE"
-    else
-      echo -e "  devcontainer_${PROJECT_NAME}_db_data:\n    external: true" >> "$COMPOSE_FILE"
-    fi
     docker volume create "devcontainer_${PROJECT_NAME}_db_data" >/dev/null
-  else
-    sed -i.bak "/external: true/d" "$COMPOSE_FILE"
+    echo "    external: true" >> "$TMP_DIR/compose.dev.yml"
   fi
-  find "$TMP_DIR" -name "*.bak" -delete
 fi
 
-
-# 7️⃣ — Copie du DevContainer dans le volume Docker (robuste)
-echo "📂 Copie du DevContainer dans le volume $VOLUME_NAME..."
-if ! docker volume inspect "$VOLUME_NAME" >/dev/null 2>&1; then
-  docker volume create "$VOLUME_NAME" >/dev/null
-  echo "📦 Volume créé : $VOLUME_NAME"
-else
-  echo "📦 Volume $VOLUME_NAME déjà existant — préservation du contenu."
-fi
-
+# --- 7️⃣ Copie dans le volume ---
 docker run --rm -v "$VOLUME_NAME":/workspace -v "$TMP_DIR":/tmp/template alpine \
   sh -c "mkdir -p /workspace/.devcontainer && cp -r /tmp/template/* /workspace/.devcontainer && chown -R 1000:1000 /workspace"
 
-
-# Avertissement pour dépôt Git potentiellement privé ou non accessible
+# --- 8️⃣ Clonage du repo ---
 if [[ -n "$REPO_URL" ]]; then
-  if [[ "$REPO_URL" == *"github.com"* && "$REPO_URL" == https://* ]]; then
-    echo "⚠️  Le dépôt Git semble être un dépôt GitHub HTTPS. Assurez-vous que vous avez accès au dépôt et que l'authentification est configurée si nécessaire."
-  fi
+  echo "📥 Clonage de $REPO_URL..."
+  docker run --rm -v "$VOLUME_NAME":/workspace debian:bookworm-slim sh -c "
+    apt-get update -qq && apt-get install -y git ca-certificates >/dev/null 2>&1 &&
+    mkdir -p /workspace/${PROJECT_NAME} &&
+    git clone --depth=1 '$REPO_URL' /workspace/${PROJECT_NAME} 2>/dev/null ||
+    echo '⚠️  Clonage échoué ou privé.'
+  "
 fi
 
-# 8️⃣ — Clonage du dépôt Git (si fourni)
-if [ -n "$REPO_URL" ]; then
-  if ! git ls-remote "$REPO_URL" &> /dev/null; then
-    echo "⚠️  Impossible d'accéder au dépôt $REPO_URL — vérifie ton URL ou ton authentification."
-  else
-    echo "📥 Clonage du dépôt Git dans le volume..."
-    docker run --rm -v "$VOLUME_NAME":/workspace debian:bookworm-slim sh -c "
-      apt-get update >/dev/null 2>&1 &&
-      apt-get install -y git ca-certificates >/dev/null 2>&1 &&
-      mkdir -p /workspace &&
-      echo '➡️  Clonage de $REPO_URL ...' &&
-      git clone --depth=1 '$REPO_URL' /workspace/${PROJECT_NAME} || echo '⚠️  Échec du clonage. Vérifie les credentials ou la connectivité.' &&
-      chown -R 1000:1000 /workspace/${PROJECT_NAME}
-    "
-  fi
-fi
-
-
-# 9️⃣ — Création du launcher local
-echo "🧩 Création du launcher local..."
-if [[ -d "$LAUNCHER_DIR" ]]; then
-  read -p "⚠️  Un launcher existe déjà à cet emplacement. Voulez-vous le remplacer ? [y/N] " CONFIRM
-  if [[ ! "$CONFIRM" =~ ^[Yy]$ ]]; then
-    echo "🚫 Opération annulée."
-    exit 0
-  fi
-  rm -rf "$LAUNCHER_DIR"
-fi
+# --- 9️⃣ Création launcher local ---
 mkdir -p "$LAUNCHER_DIR/.vscode"
 cp -r "$TMP_DIR" "$LAUNCHER_DIR/.devcontainer"
 
-
-# Fichier .code-workspace
 cat <<EOF > "$LAUNCHER_DIR/.vscode/devcontainer-launcher.code-workspace"
 {
-  "folders": [
-    { "path": "." }
-  ],
+  "folders": [{ "path": "." }],
   "settings": {
     "remote.containers.workspaceMount": "source=${VOLUME_NAME},target=/workspace,type=volume",
     "remote.containers.workspaceFolder": "/workspace"
   },
-  "extensions": [
-    "ms-vscode-remote.remote-containers"
-  ]
+  "extensions": ["ms-vscode-remote.remote-containers"]
 }
 EOF
 
-# 🔟 — Nettoyage du template temporaire
+# --- 🔟 Nettoyage ---
 echo "🧹 Nettoyage du dossier temporaire..."
-find "$TMP_DIR" -name "*.bak" -delete
 rm -rf "$TMP_DIR"
 
-# 11️⃣ — Message final
+# --- 11️⃣ Final ---
 echo "✅ Setup terminé !"
 echo "📁 Launcher local : $LAUNCHER_DIR"
-echo ""
-echo "➡️  Ouvre ton DevContainer avec :"
-echo "   code \"$LAUNCHER_DIR\""
-echo ""
-
+echo "➡️  Ouvre avec : code \"$LAUNCHER_DIR\""
 read -p "Souhaitez-vous ouvrir VS Code maintenant ? (Y/n) " OPEN_NOW
-if [[ "$OPEN_NOW" =~ ^[Yy]$ || -z "$OPEN_NOW" ]]; then
-  echo "🚀 Ouverture de VS Code..."
-  code "$LAUNCHER_DIR"
-else
-  echo "👋 Vous pourrez ouvrir le conteneur plus tard avec la commande ci-dessus."
-fi
+[[ "$OPEN_NOW" =~ ^[Yy]$ || -z "$OPEN_NOW" ]] && code "$LAUNCHER_DIR"
