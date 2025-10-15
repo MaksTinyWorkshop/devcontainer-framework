@@ -4,7 +4,6 @@
   "service": "DEVPROJECT",
   "workspaceFolder": "/workspace",
   "remoteUser": "node",
-  "postCreateCommand": "npm install",
   "forwardPorts": [3000, 3306],
   "shutdownAction": "stopCompose",
   "customizations": {
