@@ -1,0 +1,35 @@
+services:
+  DEVPROJECT:
+    container_name: DEVPROJECT
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - devcontainer_DEVPROJECT:/workspace
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      WATCHPACK_POLLING: "true"
+      DATABASE_URL: mysql://DEV_DB_USER:DEV_DB_PASS@mysql:3306/DEVPROJECT_db
+    depends_on:
+      - mysql
+    command: sleep infinity
+
+  mysql:
+    image: mysql:latest
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: DEVPROJECT_db
+      MYSQL_USER: DEV_DB_USER
+      MYSQL_PASSWORD: DEV_DB_PASS
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - devcontainer_DEVPROJECT_db_data:/var/lib/mysql
+
+volumes:
+  devcontainer_DEVPROJECT:
+    external: true
+  devcontainer_DEVPROJECT_db_data:

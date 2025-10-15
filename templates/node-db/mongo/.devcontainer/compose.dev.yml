@@ -1,0 +1,34 @@
+services:
+  DEVPROJECT:
+    container_name: DEVPROJECT
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - devcontainer_DEVPROJECT:/workspace
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      WATCHPACK_POLLING: "true"
+      DATABASE_URL: mongodb://DEV_DB_USER:DEV_DB_PASS@mongo:27017/DEVPROJECT_db
+    depends_on:
+      - mongo
+    command: sleep infinity
+
+  mongo:
+    image: mongo:latest
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: DEVPROJECT_db
+      MONGO_INITDB_ROOT_USERNAME: DEV_DB_USER
+      MONGO_INITDB_ROOT_PASSWORD: DEV_DB_PASS
+    ports:
+      - "27017:27017"
+    volumes:
+      - devcontainer_DEVPROJECT_db_data:/data/db
+
+volumes:
+  devcontainer_DEVPROJECT:
+    external: true
+  devcontainer_DEVPROJECT_db_data:

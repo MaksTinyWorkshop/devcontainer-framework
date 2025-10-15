@@ -11,7 +11,7 @@
       "version": "22"
     }
   },
-  "forwardPorts": [3000],
+  "forwardPorts": [3000, 27017],
   "shutdownAction": "stopCompose",
   "customizations": {
     "vscode": {

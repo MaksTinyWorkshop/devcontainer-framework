@@ -9,8 +9,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=development
-      - WATCHPACK_POLLING=true
+      NODE_ENV: development
+      WATCHPACK_POLLING: "true"
     command: sleep infinity
 
 volumes:
