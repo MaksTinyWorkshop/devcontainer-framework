@@ -20,8 +20,8 @@ fi
 echo "✅ Nom du projet normalisé : $PROJECT_NAME"
 
 # 3️⃣ — Définition des chemins
-VOLUME_NAME="devcontainer_${PROJECT_NAME}_workspace"
-TMP_DIR="/tmp/${PROJECT_NAME}_template"
+VOLUME_NAME="devcontainer_${PROJECT_NAME}"
+TMP_DIR="/tmp/${PROJECT_NAME}"
 LAUNCHER_DIR="${LAUNCHER_BASE}/${PROJECT_NAME}"
 
 # 4️⃣ — Création du volume Docker
