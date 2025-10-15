@@ -92,6 +92,14 @@ LAUNCHER_DIR="${LAUNCHER_BASE}/${PROJECT_NAME}"
 # 4️⃣ — Création du volume Docker
 echo "📦 Création du volume Docker : $VOLUME_NAME"
 docker volume create "$VOLUME_NAME" >/dev/null
+echo "📂 Vérification du volume..."
+EXISTING=$(docker volume ls -q | grep "^${VOLUME_NAME}$" || true)
+if [ -z "$EXISTING" ]; then
+  echo "❌ Le volume n’a pas pu être créé correctement. Vérifie Docker."
+  exit 1
+else
+  echo "✅ Volume confirmé : $VOLUME_NAME"
+fi
 
 # 5️⃣ — Téléchargement du template depuis GitHub
 if [[ "$PROJECT_TYPE" == "node-db" && -n "$DB_TYPE" ]]; then
@@ -137,10 +145,20 @@ if [[ "$PROJECT_TYPE" == "node-db" ]]; then
 fi
 
 
-# 7️⃣ — Copie du DevContainer dans le volume Docker
-echo "📂 Copie du DevContainer dans le volume..."
+# 7️⃣ — Copie du DevContainer dans le volume Docker (robuste)
+echo "📂 Copie du DevContainer dans le volume $VOLUME_NAME..."
+if ! docker volume inspect "$VOLUME_NAME" >/dev/null 2>&1; then
+  docker volume create "$VOLUME_NAME" >/dev/null
+  echo "📦 Volume créé : $VOLUME_NAME"
+else
+  echo "📦 Volume $VOLUME_NAME déjà existant — préservation du contenu."
+fi
+
 docker run --rm -v "$VOLUME_NAME":/workspace -v "$TMP_DIR":/tmp/template alpine \
   sh -c "mkdir -p /workspace/.devcontainer && cp -r /tmp/template/* /workspace/.devcontainer && chown -R 1000:1000 /workspace"
+
+echo "🔍 Vérification du contenu du volume après copie..."
+docker run --rm -v "$VOLUME_NAME":/workspace alpine sh -c "ls -al /workspace/.devcontainer || echo '(vide)'"
 
 
 # Avertissement pour dépôt Git potentiellement privé ou non accessible
