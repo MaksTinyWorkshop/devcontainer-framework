@@ -157,9 +157,6 @@ fi
 docker run --rm -v "$VOLUME_NAME":/workspace -v "$TMP_DIR":/tmp/template alpine \
   sh -c "mkdir -p /workspace/.devcontainer && cp -r /tmp/template/* /workspace/.devcontainer && chown -R 1000:1000 /workspace"
 
-echo "🔍 Vérification du contenu du volume après copie..."
-docker run --rm -v "$VOLUME_NAME":/workspace alpine sh -c "ls -al /workspace/.devcontainer || echo '(vide)'"
-
 
 # Avertissement pour dépôt Git potentiellement privé ou non accessible
 if [[ -n "$REPO_URL" ]]; then
@@ -174,10 +171,13 @@ if [ -n "$REPO_URL" ]; then
     echo "⚠️  Impossible d'accéder au dépôt $REPO_URL — vérifie ton URL ou ton authentification."
   else
     echo "📥 Clonage du dépôt Git dans le volume..."
-    docker run --rm -v "$VOLUME_NAME":/workspace alpine sh -c "
-      apk add --no-cache git >/dev/null 2>&1 &&
-      git clone '$REPO_URL' /workspace/${PROJECT_NAME} &&
-      chown -R 1000:1000 /workspace/${PROJECT_NAME}
+    docker run --rm -v "$VOLUME_NAME":/workspace debian:bookworm-slim sh -c "
+      apt-get update >/dev/null 2>&1 &&
+      apt-get install -y git ca-certificates >/dev/null 2>&1 &&
+      mkdir -p /workspace &&
+      echo '➡️  Clonage de $REPO_URL ...' &&
+      git clone --depth=1 '$REPO_URL' /workspace || echo '⚠️  Échec du clonage. Vérifie les credentials ou la connectivité.' &&
+      chown -R 1000:1000 /workspace
     "
   fi
 fi
