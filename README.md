@@ -1,131 +1,98 @@
-# DevContainer Universel — Node.js avec Volume Persitant
+# 🐳 DevContainer Framework
 
-Ce dépôt est un template DevContainer universel et autonome, conçu pour travailler sans code local : ton projet, tes dépendances et ton environnement vivent entièrement dans un volume Docker persistant.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker) ![VSCode Dev Containers](https://img.shields.io/badge/VSCode-DevContainer-007ACC?logo=visualstudiocode) ![Platforms](https://img.shields.io/badge/Platforms-macOS%20%7C%20Linux%20%7C%20WSL2-lightgrey)
 
-Il te permet de créer ou de rejoindre un projet Node.js sans jamais rien installer sur ton poste.
-
----
-
-## Fonctionnement général
-
-1. Lors du lancement dans VSCode, le conteneur est créé à partir du Dockerfile :
-   - basé sur Node 22 Alpine ;
-   - inclut bash et git, configurés pour l’utilisateur node.
-2. Le conteneur monte un volume Docker persistant :
-   - ton code et tes dépendances vivent dans /workspace/DEVPROJECT ;
-   - tout est conservé même si tu supprimes le conteneur.
-3. Le projet peut ensuite être cloné ou mis à jour directement depuis le terminal de VSCode :
-   git clone <ton-repo> .
-   npm install
-
-Résultat : tu ouvres VSCode, et tu travailles dans un environnement isolé et persistant, sans rien installer sur ton poste.
+Un framework léger pour créer des environnements de développement **Docker + VSCode** basés sur des templates prêts à l’emploi (Node, Next.js, Python, etc.).
 
 ---
 
-## Structure
+## 🚀 Fonctionnalités
 
-.devcontainer/
-├── compose.dev.yml # Service Docker principal + volume persistant
-├── Dockerfile # Image Node 22 Alpine + outils de base
-├── devcontainer.json # Configuration VSCode + extensions auto
-
----
-
-## Extensions VSCode installées automatiquement
-
-- christian-kohler.npm-intellisense — suggestions d’imports npm
-- christian-kohler.path-intellisense — autocomplétion de chemins
-- dbaeumer.vscode-eslint — linting automatique
-- esbenp.prettier-vscode — formatage de code
+- Crée automatiquement un **DevContainer** prêt à l’emploi.
+- Monte un **volume Docker persistant** pour ton code (rien sur ton disque local).
+- Clone automatiquement ton **projet Git** dans le conteneur si fourni.
+- Gère la configuration VSCode pour une ouverture instantanée.
+- Compatible **macOS, Linux et WSL2**.
 
 ---
 
-## Utilisation
+## ⚙️ Installation
 
-### Lancer ton environnement
+Pour lancer le setup sans télécharger le projet :
 
-#### Avec le launcher automatisé (setup_container.sh)
+```bash
+curl -fsSL https://raw.githubusercontent.com/MaksTinyWorkshop/devcontainer-framework/main/setup_container.sh | bash
+```
 
-1. Exécute le script :
-   bash setup_container.sh
-   Il te demandera :
+Ce script :
 
-   - le nom du projet ;
-   - l’URL du repo Git à cloner ;
-   - et où stocker le launcher sur ton poste.
-
-2. Le script :
-
-   - clone ce template dans un dossier temporaire ;
-   - crée un volume Docker dédié (devcontainer\_<nom>\_workspace) ;
-   - copie la configuration DevContainer dans le volume ;
-   - et lance VSCode directement sur l’environnement.
-
-3. VSCode détecte le .devcontainer et propose d’ouvrir le dossier dans le conteneur.  
-   Une fois ouvert, tu peux :
-   git pull # ou git clone si le dossier est vide
-   npm install # installer les dépendances
-   npm run dev # lancer ton app
+1. Te demande le nom de ton projet et le type d’environnement (Node, Next.js, etc.)
+2. Télécharge le template correspondant depuis ce repo.
+3. Crée un volume Docker (`devcontainer_<nom>_workspace`).
+4. Prépare un “launcher” local pour VSCode.
+5. Ouvre ton DevContainer prêt à coder.
 
 ---
 
-## Persistance et isolation
+## 💡 Exemple d’utilisation
 
-- Le code et les dépendances sont stockés dans un volume Docker (devcontainer_DEVPROJECT).
-- Le volume reste même après suppression du conteneur.
-- Le conteneur peut être reconstruit sans perdre ton travail.
+```bash
+bash setup_container.sh
+```
 
----
+**Exemple de réponses au prompt :**
 
-## Personnalisation
+```
+Nom du projet : mindleaf
+Type d’environnement : node
+URL du repo Git : https://github.com/tonuser/mindleaf.git
+Chemin du launcher local : /Volumes/TeraSSD/Projets_Dev
+```
 
-- Change l’URL du dépôt Git ou le comportement du launcher dans setup_container.sh.
-- Modifie le port exposé (3000) dans .devcontainer/compose.dev.yml.
-- Ajoute d’autres extensions VSCode dans .devcontainer/devcontainer.json.
-- Si tu veux changer le nom du projet, remplace DEVPROJECT dans les fichiers .yml, .json, et Dockerfile.
+Résultat :
 
----
-
-## Architecture du workflow
-
-setup*container.sh (local)
-│ crée
-▼
-Volume Docker devcontainer*<projet>
-│ monte dans
-▼
-Conteneur VSCode Dev basé sur Node Alpine
-│ exposé à
-▼
-VSCode (Remote Container)
-
-Tout ton code vit dans le volume Docker, pas sur ton disque.  
-Tu peux rouvrir ton projet quand tu veux : ton environnement revient exactement comme tu l’as laissé.
+- Un volume Docker nommé `devcontainer_mindleaf_workspace`
+- Un dossier `/Volumes/TeraSSD/Projets_Dev/mindleaf`
+- Un environnement complet prêt à être ouvert avec :
+  ```bash
+  code /Volumes/TeraSSD/Projets_Dev/mindleaf
+  ```
 
 ---
 
-## Astuce
+## 📦 Templates disponibles
 
-Grâce à ce template :
-
-- Tu peux développer sur ton poste local, un serveur distant, ou dans GitHub Codespaces.
-- Ton code reste proprement isolé et persistant dans Docker.
-- Tu peux changer de projet simplement en exécutant à nouveau setup_container.sh.
+- **Node.js** → `templates/node/.devcontainer/`
+- _(d’autres templates viendront : Next.js, Python, NestJS, Prisma, etc.)_
 
 ---
 
-## Stack technique
+## 🧩 Structure du repo
 
-- Node.js 22 (Alpine 3.19)
-- Docker Compose
-- VSCode Dev Containers
-- npm / git
-- Volume persistant /workspace
+```
+devcontainer-framework/
+├── setup_container.sh
+├── templates/
+│   └── node/
+│       └── .devcontainer/
+│           ├── devcontainer.json
+│           ├── Dockerfile
+│           └── compose.dev.yml
+└── README.md
+```
 
 ---
 
-Ce template est la base idéale pour créer des environnements de développement reproductibles :
+## 🧠 À venir
 
-- full-stack avec Prisma / Next.js,
-- API back-end isolées,
-- ou microservices avec volumes partagés.
+- Support multi-template (monorepo, fullstack, etc.)
+- Auto-détection du langage
+- Setup Prisma / Postgres / Redis préconfiguré
+- Interface CLI interactive
+
+---
+
+## 📜 Licence
+
+Distribué sous la licence **MIT**.  
+© 2025 Maks — libre d’utilisation, modification et distribution.
