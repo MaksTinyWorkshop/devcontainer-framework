@@ -96,13 +96,13 @@ done
 
 # --- 6️⃣ Remplacement des placeholders ---
 echo "🔧 Configuration du template..."
-find "$TMP_DIR" -type f \( -name "*.json" -o -name "*.yml" -o -name "Dockerfile" \) | while read -r FILE; do
+while IFS= read -r -d '' FILE; do
   if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' "s/DEVPROJECT/${PROJECT_NAME}/g" "$FILE"
+    sed -i '' "s/DEVPROJECT/${PROJECT_NAME}/g" "$FILE" || echo "⚠️ Échec sed sur $FILE"
   else
-    sed -i "s/DEVPROJECT/${PROJECT_NAME}/g" "$FILE"
+    sed -i "s/DEVPROJECT/${PROJECT_NAME}/g" "$FILE" || echo "⚠️ Échec sed sur $FILE"
   fi
-done
+done < <(find "$TMP_DIR" -type f \( -name "*.json" -o -name "*.yml" -o -name "Dockerfile" \) -print0)
 
 if [[ "$PROJECT_TYPE" == "node-db" ]]; then
   echo "🔧 Configuration des identifiants DB..."
