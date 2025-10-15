@@ -212,7 +212,7 @@ cat <<EOF > "$LAUNCHER_DIR/.vscode/devcontainer-launcher.code-workspace"
   ],
   "settings": {
     "remote.containers.workspaceMount": "source=${VOLUME_NAME},target=/workspace,type=volume",
-    "remote.containers.workspaceFolder": "/workspace"
+    "remote.containers.workspaceFolder": "/workspace/${PROJECT_NAME}"
   },
   "extensions": [
     "ms-vscode-remote.remote-containers"

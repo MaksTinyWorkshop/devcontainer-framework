@@ -2,7 +2,7 @@
   "name": "DEVPROJECT",
   "dockerComposeFile": "compose.dev.yml",
   "service": "DEVPROJECT",
-  "workspaceFolder": "/workspace",
+  "workspaceFolder": "/workspace/DEVPROJECT",
   "remoteUser": "node",
   "forwardPorts": [3000, 5432],
   "shutdownAction": "stopCompose",
