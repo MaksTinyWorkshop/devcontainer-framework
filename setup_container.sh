@@ -129,7 +129,9 @@ fi
 echo "📂 Préparation du volume..."
 if [[ -n "$REPO_URL" ]]; then
   echo "📥 Clonage de $REPO_URL dans le volume..."
-  docker run --rm -v "$VOLUME_NAME":/workspace alpine/git /bin/sh -c "
+  docker run --rm -v "$VOLUME_NAME":/workspace debian:bookworm-slim /bin/bash -c "
+    apt-get update -qq &&
+    apt-get install -y git ca-certificates >/dev/null 2>&1 &&
     mkdir -p /workspace/${PROJECT_NAME} &&
     git clone --depth=1 '$REPO_URL' /workspace/${PROJECT_NAME} 2>/dev/null ||
     echo '⚠️  Clonage échoué ou privé.' ;
