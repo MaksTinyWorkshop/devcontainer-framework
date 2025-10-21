@@ -22,5 +22,6 @@
         "mikestead.dotenv"
       ]
     }
-  }
+  },
+  "postCreateCommand": "sudo chown -R node:node /workspace || true && if [ -f /workspace/DEVPROJECT/package.json ]; then cd /workspace/DEVPROJECT && npm install; fi"
 }
