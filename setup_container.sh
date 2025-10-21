@@ -119,6 +119,10 @@ if [[ "$PROJECT_TYPE" == "node-db" ]]; then
   fi
 fi
 
+if [[ -n "$REPO_URL" ]]; then
+  echo "    external: true" >> "$TMP_DIR/compose.dev.yml"
+fi
+
 # --- 7️⃣ Copie dans le volume ---
 docker run --rm -v "$VOLUME_NAME":/workspace -v "$TMP_DIR":/tmp/template alpine \
   sh -c "mkdir -p /workspace/.devcontainer && cp -r /tmp/template/* /workspace/.devcontainer && chown -R 1000:1000 /workspace"

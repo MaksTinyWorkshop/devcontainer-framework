@@ -15,4 +15,4 @@ services:
 
 volumes:
   devcontainer_DEVPROJECT:
-    external: true
+    name: devcontainer_DEVPROJECT

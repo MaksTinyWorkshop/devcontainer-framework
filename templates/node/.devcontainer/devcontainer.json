@@ -23,5 +23,5 @@
       ]
     }
   },
-  "postCreateCommand": "sh -c 'chown -R node:node /workspace && su node -c \"if [ -f /workspace/DEVPROJECT/package.json ]; then cd /workspace/DEVPROJECT && npm ci --no-audit --no-fund; fi\"'"
+  "postCreateCommand": "sh -c 'mkdir -p /workspace/DEVPROJECT && chown -R node:node /workspace && if [ -f /workspace/DEVPROJECT/package.json ]; then su node -c \"cd /workspace/DEVPROJECT && npm ci --no-audit --no-fund\"; else echo \"📂 Projet vide — npm init à effectuer manuellement.\"; fi'"
 }
