@@ -3,7 +3,7 @@
   "dockerComposeFile": "compose.dev.yml",
   "service": "DEVPROJECT",
   "workspaceFolder": "/workspace/DEVPROJECT",
-  "remoteUser": "root",
+  "remoteUser": "node",
   "forwardPorts": [3000],
   "shutdownAction": "stopCompose",
   "customizations": {
@@ -23,5 +23,5 @@
       ]
     }
   },
-  "postCreateCommand": "sh -c 'mkdir -p /workspace/DEVPROJECT && chown -R node:node /workspace/DEVPROJECT /workspace && if [ ! -d /workspace/DEVPROJECT ]; then mkdir -p /workspace/DEVPROJECT; fi; if [ -f /workspace/DEVPROJECT/package.json ]; then su node -c \"cd /workspace/DEVPROJECT && npm ci --no-audit --no-fund\"; else echo \"📂 Projet vide — npm init à effectuer manuellement.\"; fi'"
+  "postCreateCommand": "sh -c 'if [ -f /workspace/DEVPROJECT/package.json ]; then cd /workspace/DEVPROJECT && npm ci --no-audit --no-fund; else echo \"📂 Projet vide — exécute npm init manuellement si besoin.\"; fi'"
 }
