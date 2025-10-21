@@ -123,33 +123,27 @@ if [[ -n "$REPO_URL" ]]; then
   echo "    external: true" >> "$TMP_DIR/compose.dev.yml"
 fi
 
-# --- 7️⃣ Copie dans le volume ---
-docker run --rm -v "$VOLUME_NAME":/workspace -v "$TMP_DIR":/tmp/template alpine \
-  sh -c "mkdir -p /workspace/.devcontainer && cp -r /tmp/template/* /workspace/.devcontainer && chown -R 1000:1000 /workspace"
 
 
-# --- 8️⃣ Clonage du repo ---
+# --- 7️⃣ Initialisation du volume et clonage du repo (si applicable) ---
+echo "📂 Préparation du volume..."
 if [[ -n "$REPO_URL" ]]; then
-  echo "📥 Clonage de $REPO_URL..."
-  docker run --rm -v "$VOLUME_NAME":/workspace debian:bookworm-slim sh -c "
-    apt-get update -qq &&
-    apt-get install -y git ca-certificates >/dev/null 2>&1 &&
+  echo "📥 Clonage de $REPO_URL dans le volume..."
+  docker run --rm -v "$VOLUME_NAME":/workspace alpine/git sh -c "
     mkdir -p /workspace/${PROJECT_NAME} &&
     git clone --depth=1 '$REPO_URL' /workspace/${PROJECT_NAME} 2>/dev/null ||
     echo '⚠️  Clonage échoué ou privé.' ;
     chown -R 1000:1000 /workspace/${PROJECT_NAME}
   "
+else
+  echo "📂 Initialisation d’un projet vide..."
+  docker run --rm -v "$VOLUME_NAME":/workspace alpine sh -c "
+    mkdir -p /workspace/${PROJECT_NAME} &&
+    chown -R 1000:1000 /workspace/${PROJECT_NAME}
+  "
 fi
 
-# S'assure que le dossier du projet existe dans le volume, même sans repo Git.
-# --- 8.5️⃣ Création du dossier du projet si inexistant ---
-echo "📂 Vérification du dossier du projet..."
-docker run --rm -v "$VOLUME_NAME":/workspace alpine sh -c "
-  mkdir -p /workspace/${PROJECT_NAME} &&
-  chown -R 1000:1000 /workspace/${PROJECT_NAME}
-"
-
-# --- 9️⃣ Création launcher local ---
+# --- 8️⃣ Création launcher local ---
 mkdir -p "$LAUNCHER_DIR/.vscode"
 cp -r "$TMP_DIR" "$LAUNCHER_DIR/.devcontainer"
 
@@ -164,11 +158,11 @@ cat <<EOF > "$LAUNCHER_DIR/.vscode/devcontainer-launcher.code-workspace"
 }
 EOF
 
-# --- 🔟 Nettoyage ---
+# --- 9️⃣ Nettoyage ---
 echo "🧹 Nettoyage du dossier temporaire..."
 rm -rf "$TMP_DIR"
 
-# --- 11️⃣ Final ---
+# --- 1️⃣0️⃣ Final ---
 echo "✅ Setup terminé !"
 echo "📁 Launcher local : $LAUNCHER_DIR"
 echo "➡️  Ouvre avec : code \"$LAUNCHER_DIR\""
