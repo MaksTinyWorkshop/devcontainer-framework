@@ -23,5 +23,5 @@
       ]
     }
   },
-  "postCreateCommand": "sudo chown -R node:node /workspace || true && if [ -f /workspace/DEVPROJECT/package.json ]; then cd /workspace/DEVPROJECT && npm install; fi"
+  "postCreateCommand": "sh -c 'chown -R node:node /workspace 2>/dev/null || true; if [ -f /workspace/DEVPROJECT/package.json ]; then cd /workspace/DEVPROJECT && npm install; fi'"
 }
