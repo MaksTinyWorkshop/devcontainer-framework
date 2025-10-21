@@ -3,6 +3,12 @@ set -e
 
 echo "🌍 Bienvenue dans le setup du DevContainer Framework !"
 
+# --- 1️⃣ Collecte d’informations ---
+read -p "Nom du projet (ex: myapp) : " RAW_PROJECT_NAME
+
+LOG_FILE="/tmp/devcontainer_setup_${RAW_PROJECT_NAME}.log"
+exec > >(tee -a "$LOG_FILE") 2>&1
+
 # --- Vérification des dépendances ---
 for cmd in docker curl code; do
   if ! command -v $cmd &> /dev/null; then
@@ -15,9 +21,6 @@ if ! docker info >/dev/null 2>&1; then
   echo "❌ Docker n’est pas démarré."
   exit 1
 fi
-
-# --- 1️⃣ Collecte d’informations ---
-read -p "Nom du projet (ex: myapp) : " RAW_PROJECT_NAME
 
 echo ""
 echo "🌱 Type d’environnement à créer :"
@@ -74,9 +77,13 @@ TMP_DIR="/tmp/${PROJECT_NAME}"
 LAUNCHER_DIR="${LAUNCHER_BASE}/${PROJECT_NAME}"
 
 # --- 4️⃣ Création volume ---
-echo "📦 Création du volume : $VOLUME_NAME"
-docker volume create "$VOLUME_NAME" >/dev/null
-echo "✅ Volume prêt."
+if docker volume inspect "$VOLUME_NAME" >/dev/null 2>&1; then
+  echo "📦 Volume $VOLUME_NAME existe déjà, réutilisation."
+else
+  echo "📦 Création du volume : $VOLUME_NAME"
+  docker volume create "$VOLUME_NAME" >/dev/null
+  echo "✅ Volume prêt."
+fi
 
 # --- 5️⃣ Téléchargement du template ---
 if [[ "$PROJECT_TYPE" == "node-db" ]]; then
@@ -133,8 +140,7 @@ if [[ -n "$REPO_URL" ]]; then
     apt-get update -qq &&
     apt-get install -y git ca-certificates >/dev/null 2>&1 &&
     mkdir -p /workspace/${PROJECT_NAME} &&
-    git clone --depth=1 '$REPO_URL' /workspace/${PROJECT_NAME} 2>/dev/null ||
-    echo '⚠️  Clonage échoué ou privé.' ;
+    git clone --depth=1 '$REPO_URL' /workspace/${PROJECT_NAME} 2>&1 || echo '⚠️  Clonage échoué ou privé (vérifie ton accès ou le repo).'
     chown -R 1000:1000 /workspace/${PROJECT_NAME}
   "
 else
@@ -163,6 +169,8 @@ EOF
 # --- 9️⃣ Nettoyage ---
 echo "🧹 Nettoyage du dossier temporaire..."
 rm -rf "$TMP_DIR"
+
+echo "🪶 Log disponible dans : $LOG_FILE"
 
 # --- 1️⃣0️⃣ Final ---
 echo "✅ Setup terminé !"

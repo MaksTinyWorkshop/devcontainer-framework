@@ -26,5 +26,6 @@
         "mikestead.dotenv"
       ]
     }
-  }
+  },
+  "postCreateCommand": "sh -c 'if [ -f /workspace/DEVPROJECT/package.json ]; then cd /workspace/DEVPROJECT && npm ci --no-audit --no-fund > /tmp/devcontainer_setup.log 2>&1; else echo \"📂 Projet vide — exécute npm init manuellement si besoin.\"; fi'"
 }
