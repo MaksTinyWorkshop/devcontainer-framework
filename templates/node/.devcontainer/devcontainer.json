@@ -3,7 +3,7 @@
   "dockerComposeFile": "compose.dev.yml",
   "service": "DEVPROJECT",
   "workspaceFolder": "/workspace/DEVPROJECT",
-  "remoteUser": "node",
+  "remoteUser": "root",
   "forwardPorts": [3000],
   "shutdownAction": "stopCompose",
   "customizations": {
@@ -23,5 +23,5 @@
       ]
     }
   },
-  "postCreateCommand": "sh -c 'if [ -d /workspace/DEVPROJECT ]; then chown -R node:node /workspace/DEVPROJECT || true; fi && if [ -f /workspace/DEVPROJECT/package.json ]; then cd /workspace/DEVPROJECT && npm ci --no-audit --no-fund; fi'"
+  "postCreateCommand": "sh -c 'chown -R node:node /workspace && su node -c \"if [ -f /workspace/DEVPROJECT/package.json ]; then cd /workspace/DEVPROJECT && npm ci --no-audit --no-fund; fi\"'"
 }
