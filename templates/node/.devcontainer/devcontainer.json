@@ -23,5 +23,5 @@
       ]
     }
   },
-  "postCreateCommand": "sh -c 'chown -R node:node /workspace 2>/dev/null || true; if [ -f /workspace/DEVPROJECT/package.json ]; then cd /workspace/DEVPROJECT && npm install; fi'"
+  "postCreateCommand": "sh -c 'if [ -d /workspace/DEVPROJECT ]; then chown -R node:node /workspace/DEVPROJECT || true; fi && if [ -f /workspace/DEVPROJECT/package.json ]; then cd /workspace/DEVPROJECT && npm ci --no-audit --no-fund; fi'"
 }
