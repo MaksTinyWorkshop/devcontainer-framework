@@ -142,14 +142,16 @@ if [[ -n "$REPO_URL" ]]; then
     mkdir -p /workspace/${PROJECT_NAME} &&
     git clone --depth=1 '$REPO_URL' /workspace/${PROJECT_NAME} 2>&1 || echo '⚠️  Clonage échoué ou privé (vérifie ton accès ou le repo).'
     chown -R 1000:1000 /workspace/${PROJECT_NAME}
+    
     if [ -d \"/workspace/${PROJECT_NAME}/.git\" ]; then
-      echo '🔄 Réinitialisation du dépôt Git...'
-      cd /workspace/${PROJECT_NAME} &&
-      rm -rf .git &&
-      git init &&
-      git add . &&
-      git commit -m '🎉 Initialisation du dépôt à partir du template ${REPO_URL}'
-    fi
+    echo '🔄 Réinitialisation du dépôt Git...'
+    cd /workspace/${PROJECT_NAME} &&
+    git config --global --add safe.directory /workspace/${PROJECT_NAME} &&
+    rm -rf .git &&
+    git init &&
+    git add . &&
+    git commit -m '🎉 Initialisation du dépôt à partir du template ${REPO_URL}'
+  fi
   "
 else
   echo "📂 Initialisation d’un projet vide..."
