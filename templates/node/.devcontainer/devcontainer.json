@@ -34,5 +34,5 @@
       ]
     }
   },
-  "postCreateCommand": "sh -c 'if [ -f /workspace/DEVPROJECT/package.json ]; then cd /workspace/DEVPROJECT && npm ci --no-audit --no-fund > /tmp/devcontainer_setup.log 2>&1; else echo \"📂 Projet vide — exécute npm init manuellement si besoin.\"; fi'"
+  "postCreateCommand": "sh -c 'if [ -d .git ]; then echo \"🔄 Réinitialisation du dépôt Git...\" && rm -rf .git && git init && git config --global --add safe.directory $(pwd); fi; if [ -f package.json ]; then npm ci --no-audit --no-fund > /tmp/devcontainer_setup.log 2>&1; else echo \"📂 Projet vide — exécute npm init manuellement si besoin.\"; fi'"
 }
