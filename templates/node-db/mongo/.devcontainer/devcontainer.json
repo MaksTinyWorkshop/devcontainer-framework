@@ -17,12 +17,13 @@
         "christian-kohler.path-intellisense",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
+        "rvest.vs-code-prettier-eslint",
         "mongodb.mongodb-vscode",
-        "cweijan.vscode-database-client2", // pour visualiser rapidement plusieurs connexions (SQL + NoSQL)
-        "jeremyrajan.mongo-snippets-for-node-js", // snippets utiles pour MongoDB/Mongoose dans Node.js
-        "eamodio.gitlens",
-        "streetsidesoftware.code-spell-checker",
-        "mikestead.dotenv"
+        "jeremyrajan.mongo-snippets-for-node-js",
+        "inferrinizzard.prettier-sql-vscode",
+        "pkief.material-icon-theme",
+        "mikestead.dotenv",
+        "streetsidesoftware.code-spell-checker"
       ]
     }
   },

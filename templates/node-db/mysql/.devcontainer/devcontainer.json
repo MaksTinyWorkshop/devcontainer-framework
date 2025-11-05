@@ -17,13 +17,14 @@
         "christian-kohler.path-intellisense",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
+        "rvest.vs-code-prettier-eslint",
         "cweijan.vscode-mysql-client2",
-        "mtxr.sqltools", // outil SQL universel
-        "mtxr.sqltools-driver-mysql", // driver SQLTools pour MySQL
-        "mechatroner.rainbow-csv", // pour importer/exporter facilement des données CSV
-        "eamodio.gitlens",
-        "streetsidesoftware.code-spell-checker",
-        "mikestead.dotenv"
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-mysql",
+        "inferrinizzard.prettier-sql-vscode",
+        "mechatroner.rainbow-csv",
+        "mikestead.dotenv",
+        "streetsidesoftware.code-spell-checker"
       ]
     }
   },

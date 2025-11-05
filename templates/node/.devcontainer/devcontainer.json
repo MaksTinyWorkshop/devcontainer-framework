@@ -17,9 +17,20 @@
         "christian-kohler.path-intellisense",
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "eamodio.gitlens",
+        "rvest.vs-code-prettier-eslint",
+        "mikestead.dotenv",
         "streetsidesoftware.code-spell-checker",
-        "mikestead.dotenv"
+        "pkief.material-icon-theme",
+        "oderwat.indent-rainbow",
+        "usernamehw.errorlens",
+        "xabikos.javascriptsnippets",
+        "xabikos.reactsnippets",
+        "yoavbls.pretty-ts-errors",
+        "wallabyjs.quokka-vscode",
+        "meganrogge.template-string-converter",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-sqlite",
+        "qwtel.sqlite-viewer"
       ]
     }
   },
