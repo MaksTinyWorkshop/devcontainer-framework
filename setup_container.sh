@@ -147,6 +147,8 @@ if [[ -n "$REPO_URL" ]]; then
     echo '🔄 Réinitialisation du dépôt Git...'
     cd /workspace/${PROJECT_NAME} &&
     git config --system --add safe.directory /workspace/${PROJECT_NAME} &&
+    git config --system user.email "devcontainer@local" &&
+    git config --system user.name "DevContainer Bot" &&
     rm -rf .git &&
     git init &&
     git add . &&
