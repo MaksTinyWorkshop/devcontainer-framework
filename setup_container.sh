@@ -146,7 +146,7 @@ if [[ -n "$REPO_URL" ]]; then
     if [ -d \"/workspace/${PROJECT_NAME}/.git\" ]; then
     echo '🔄 Réinitialisation du dépôt Git...'
     cd /workspace/${PROJECT_NAME} &&
-    git config --global --add safe.directory /workspace/${PROJECT_NAME} &&
+    git config --system --add safe.directory /workspace/${PROJECT_NAME} &&
     rm -rf .git &&
     git init &&
     git add . &&
