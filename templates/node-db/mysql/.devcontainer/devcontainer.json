@@ -28,5 +28,5 @@
       ]
     }
   },
-  "postCreateCommand": "sh -c 'if [ -f /workspace/DEVPROJECT/package.json ]; then cd /workspace/DEVPROJECT && npm ci --no-audit --no-fund > /tmp/devcontainer_setup.log 2>&1; else echo \"📂 Projet vide — exécute npm init manuellement si besoin.\"; fi'"
+  "postCreateCommand": "sh -c 'if [ -d .git ]; then echo \"🔄 Réinitialisation du dépôt Git...\" && rm -rf .git >/dev/null 2>&1 && git init -q && git config --global --add safe.directory $(pwd) >/dev/null 2>&1 && echo \"💡 Nouveau dépôt Git initialisé. Pour le lier à ton dépôt distant, exécute :\" && echo \"   git remote add origin <url_de_ton_repo>\"; elif [ -f package.json ]; then echo \"📦 Installation des dépendances...\" && npm ci --no-audit --no-fund > /tmp/devcontainer_setup.log 2>&1 && echo \"✅ Installation terminée.\"; else echo \"📂 Projet vide — exécute npm init manuellement si besoin.\"; fi'"
 }
