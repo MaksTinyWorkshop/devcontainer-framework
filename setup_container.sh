@@ -134,39 +134,50 @@ fi
 
 # --- 7️⃣ Initialisation du volume et clonage du repo (si applicable) ---
 echo "📂 Préparation du volume..."
+
+# Récupère l'UID/GID de l'utilisateur hôte pour des permissions cohérentes
+HOST_UID=$(id -u)
+HOST_GID=$(id -g)
+
 if [[ -n "$REPO_URL" ]]; then
   echo "📥 Clonage de $REPO_URL dans le volume..."
-  docker run --rm -v "$VOLUME_NAME":/workspace debian:bookworm-slim /bin/bash -c "
-    set -e
-    apt-get update -qq &&
-    apt-get install -y git ca-certificates >/dev/null 2>&1 &&
-    mkdir -p /workspace/${PROJECT_NAME} &&
-    if git clone --depth=1 '$REPO_URL' /workspace/${PROJECT_NAME} 2>/dev/null; then
-      echo '✅ Dépôt cloné avec succès.'
-    else
-      echo '⚠️  Clonage échoué ou privé (vérifie ton accès ou le repo).'
-    fi
+  docker run --rm \
+    -u "$HOST_UID:$HOST_GID" \
+    -v "$VOLUME_NAME":/workspace \
+    debian:bookworm-slim /bin/bash -c "
+      set -e
+      apt-get update -qq &&
+      apt-get install -y git ca-certificates >/dev/null 2>&1 &&
+      mkdir -p /workspace/${PROJECT_NAME} &&
+      if git clone --depth=1 '$REPO_URL' /workspace/${PROJECT_NAME} 2>/dev/null; then
+        echo '✅ Dépôt cloné avec succès.'
+      else
+        echo '⚠️  Clonage échoué ou privé (vérifie ton accès ou le repo).'
+      fi
 
-    chown -R 1000:1000 /workspace/${PROJECT_NAME}
+      chown -R $HOST_UID:$HOST_GID /workspace/${PROJECT_NAME}
 
-    if [ -d /workspace/${PROJECT_NAME}/.git ]; then
-      echo '🔄 Réinitialisation du dépôt Git...'
-      cd /workspace/${PROJECT_NAME} &&
-      git config --system --add safe.directory /workspace/${PROJECT_NAME} &&
-      git config --system user.email \"devcontainer@local\" &&
-      git config --system user.name \"DevContainer Bot\" &&
-      rm -rf .git &&
-      git init &&
-      git add . &&
-      git commit -m \"🎉 Initialisation du dépôt à partir du template ${REPO_URL}\"
-    fi
-  "
+      if [ -d /workspace/${PROJECT_NAME}/.git ]; then
+        echo '🔄 Réinitialisation du dépôt Git...'
+        cd /workspace/${PROJECT_NAME} &&
+        git config --system --add safe.directory /workspace/${PROJECT_NAME} &&
+        git config --system user.email \"devcontainer@local\" &&
+        git config --system user.name \"DevContainer Bot\" &&
+        rm -rf .git &&
+        git init &&
+        git add . &&
+        git commit -m \"🎉 Initialisation du dépôt à partir du template ${REPO_URL}\"
+      fi
+    "
 else
   echo "📂 Initialisation d’un projet vide..."
-  docker run --rm -v "$VOLUME_NAME":/workspace alpine sh -c "
-    mkdir -p /workspace/${PROJECT_NAME} &&
-    chown -R 1000:1000 /workspace/${PROJECT_NAME}
-  "
+  docker run --rm \
+    -u "$HOST_UID:$HOST_GID" \
+    -v "$VOLUME_NAME":/workspace \
+    alpine sh -c "
+      mkdir -p /workspace/${PROJECT_NAME} &&
+      chown -R $HOST_UID:$HOST_GID /workspace/${PROJECT_NAME}
+    "
 fi
 
 # --- 8️⃣ Création launcher local ---
