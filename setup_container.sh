@@ -149,13 +149,12 @@ if [[ -n "$REPO_URL" ]]; then
       apt-get update -qq &&
       apt-get install -y git ca-certificates >/dev/null 2>&1 &&
       mkdir -p /workspace/${PROJECT_NAME} &&
+      echo \"ℹ️  Les permissions ne sont pas modifiées (Docker Desktop limite les chown sur Mac).\" &&
       if git clone --depth=1 '$REPO_URL' /workspace/${PROJECT_NAME} 2>/dev/null; then
         echo '✅ Dépôt cloné avec succès.'
       else
         echo '⚠️  Clonage échoué ou privé (vérifie ton accès ou le repo).'
       fi
-
-      chown -R $HOST_UID:$HOST_GID /workspace/${PROJECT_NAME}
 
       if [ -d /workspace/${PROJECT_NAME}/.git ]; then
         echo '🔄 Réinitialisation du dépôt Git...'
@@ -176,7 +175,7 @@ else
     -v "$VOLUME_NAME":/workspace \
     alpine sh -c "
       mkdir -p /workspace/${PROJECT_NAME} &&
-      chown -R $HOST_UID:$HOST_GID /workspace/${PROJECT_NAME}
+      echo \"ℹ️  Les permissions ne sont pas modifiées (Docker Desktop limite les chown sur Mac).\" 
     "
 fi
 
