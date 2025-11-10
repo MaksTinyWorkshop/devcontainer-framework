@@ -21,7 +21,7 @@ Un framework léger pour créer des environnements de développement **Docker + 
 Pour lancer le setup sans télécharger le projet :
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/MaksTinyWorkshop/devcontainer-framework/main/setup_container.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/MaksTinyWorkshop/devcontainer-framework/main/scripts/setup_container.sh)
 ```
 
 Ce script :

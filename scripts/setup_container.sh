@@ -158,8 +158,8 @@ else
 fi
 
 # --- 8️⃣ Création launcher local ---
-mkdir -p "$LAUNCHER_DIR/.vscode"
-cp -r "$TMP_DIR" "$LAUNCHER_DIR/.devcontainer"
+mkdir -p "$LAUNCHER_DIR/.vscode" "$LAUNCHER_DIR/.devcontainer"
+cp -r "$TMP_DIR"/* "$LAUNCHER_DIR/.devcontainer/"
 
 cat <<EOF > "$LAUNCHER_DIR/.vscode/devcontainer-launcher.code-workspace"
 {
