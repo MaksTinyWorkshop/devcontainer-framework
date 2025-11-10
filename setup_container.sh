@@ -99,42 +99,11 @@ for FILE in devcontainer.json Dockerfile compose.dev.yml; do
     -o "$TMP_DIR/$FILE"
 done
 
-# --- Ajout du script postCreate.sh dans le template ---
-POSTCREATE_PATH="$TMP_DIR/postCreate.sh"
-cat <<'EOF' > "$POSTCREATE_PATH"
-#!/bin/bash
-set -e
-
-# Fonction pour vérifier si un remote Git est un template remote
-is_template_remote() {
-  local remote_url=$1
-  [[ -z "$remote_url" ]] && return 0
-  if [[ "$remote_url" == *template* ]] || [[ "$remote_url" == *starter* ]] || [[ "$remote_url" == *devcontainer* ]] || [[ "$remote_url" == *boilerplate* ]]; then
-    return 0
-  fi
-  return 1
-}
-
-if [ -d ".git" ]; then
-  remote_url=$(git remote get-url origin 2>/dev/null || echo "")
-  if is_template_remote "$remote_url"; then
-    echo "Template remote detected or no remote, reinitializing git repository..."
-    rm -rf .git
-    git init
-  else
-    echo "Existing git repository with non-template remote detected, keeping it."
-  fi
-else
-  echo "No git repository found, initializing new git repository..."
-  git init
-fi
-
-if [ -f "package.json" ]; then
-  echo "Installing npm dependencies..."
-  npm install
-fi
-EOF
-chmod +x "$POSTCREATE_PATH"
+# --- Téléchargement du script postCreate.sh global ---
+echo "⬇️ Téléchargement du script postCreate.sh global..."
+curl -fsSL "https://raw.githubusercontent.com/MaksTinyWorkshop/devcontainer-framework/main/scripts/postCreate.sh" \
+  -o "$TMP_DIR/postCreate.sh"
+chmod +x "$TMP_DIR/postCreate.sh"
 
 # --- 6️⃣ Remplacement des placeholders ---
 echo "🔧 Configuration du template..."
@@ -145,33 +114,6 @@ while IFS= read -r -d '' FILE; do
     sed -i "s/DEVPROJECT/${PROJECT_NAME}/g" "$FILE" || echo "⚠️ Échec sed sur $FILE"
   fi
 done < <(find "$TMP_DIR" -type f \( -name "*.json" -o -name "*.yml" -o -name "Dockerfile" \) -print0)
-
-# --- Mise à jour de devcontainer.json pour utiliser postCreate.sh ---
-if [[ -f "$TMP_DIR/devcontainer.json" ]]; then
-  if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' 's/"postCreateCommand": *"[^"]*"/"postCreateCommand": "bash .devcontainer\/postCreate.sh"/' "$TMP_DIR/devcontainer.json" || \
-    # If postCreateCommand not present, add it before last }
-    awk 'NR==FNR{a[NR]=$0;next} 
-      END{
-        for(i=1;i<=length(a);i++){
-          if(a[i] ~ /"postCreateCommand"/) {print; next}
-          if(a[i] ~ /}$/) {print "  ,\"postCreateCommand\": \"bash .devcontainer/postCreate.sh\""; print; next}
-          print
-        }
-      }' "$TMP_DIR/devcontainer.json" "$TMP_DIR/devcontainer.json" > "$TMP_DIR/devcontainer.json.tmp" && mv "$TMP_DIR/devcontainer.json.tmp" "$TMP_DIR/devcontainer.json"
-  else
-    sed -i 's/"postCreateCommand": *"[^"]*"/"postCreateCommand": "bash .devcontainer\/postCreate.sh"/' "$TMP_DIR/devcontainer.json" || \
-    # If postCreateCommand not present, add it before last }
-    awk 'NR==FNR{a[NR]=$0;next} 
-      END{
-        for(i=1;i<=length(a);i++){
-          if(a[i] ~ /"postCreateCommand"/) {print; next}
-          if(a[i] ~ /}$/) {print "  ,\"postCreateCommand\": \"bash .devcontainer/postCreate.sh\""; print; next}
-          print
-        }
-      }' "$TMP_DIR/devcontainer.json" "$TMP_DIR/devcontainer.json" > "$TMP_DIR/devcontainer.json.tmp" && mv "$TMP_DIR/devcontainer.json.tmp" "$TMP_DIR/devcontainer.json"
-  fi
-fi
 
 if [[ "$PROJECT_TYPE" == "node-db" ]]; then
   echo "🔧 Configuration des identifiants DB..."
