@@ -109,7 +109,7 @@ set -e
 is_template_remote() {
   local remote_url=$1
   [[ -z "$remote_url" ]] && return 0
-  if [[ "$remote_url" == *template* ]] || [[ "$remote_url" == *starter* ]]; then
+  if [[ "$remote_url" == *template* ]] || [[ "$remote_url" == *starter* ]] || [[ "$remote_url" == *devcontainer* ]] || [[ "$remote_url" == *boilerplate* ]]; then
     return 0
   fi
   return 1
