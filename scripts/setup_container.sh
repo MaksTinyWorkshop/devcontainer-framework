@@ -138,7 +138,7 @@ if [[ "$PROJECT_TYPE" == "node-db" ]]; then
       echo "    external: true" >> "$TMP_DIR/compose.dev.yml"
     fi
   fi
-
+fi
 
 
 # --- 7️⃣ Initialisation du volume et clonage du repo (si applicable) ---
