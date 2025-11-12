@@ -130,12 +130,12 @@ if [[ "$PROJECT_TYPE" == "node-db" ]]; then
   if [[ "$DB_EXTERNAL" == "true" ]]; then
     docker volume create "devcontainer_${PROJECT_NAME}_db_data" >/dev/null
     if ! grep -q "external:" "$TMP_DIR/compose.dev.yml"; then
-      echo "    external: true" >> "$TMP_DIR/compose.dev.yml"
+      sed -i "/devcontainer_${PROJECT_NAME}_db_data:/a\    external: true" "$TMP_DIR/compose.dev.yml"
     fi
   elif [[ -n "$REPO_URL" ]]; then
     # Si pas de DB persistante, mais repo distant, ajoute external: true une seule fois
     if ! grep -q "external:" "$TMP_DIR/compose.dev.yml"; then
-      echo "    external: true" >> "$TMP_DIR/compose.dev.yml"
+      sed -i "/devcontainer_${PROJECT_NAME}_db_data:/a\    external: true" "$TMP_DIR/compose.dev.yml"
     fi
   fi
 fi
