@@ -5,7 +5,7 @@ echo "🔧 Running intelligent post-create setup..."
 
 # --- 1️⃣ Gestion du dépôt Git ---
 is_template_remote() {
-  local remote_url=$1
+  local remote_url=$(echo "$1" | tr '[:upper:]' '[:lower:]')
   [[ -z "$remote_url" ]] && return 0
   if [[ "$remote_url" == *template* ]] || [[ "$remote_url" == *starter* ]] || [[ "$remote_url" == *devcontainer* ]] || [[ "$remote_url" == *boilerplate* ]]; then
     return 0

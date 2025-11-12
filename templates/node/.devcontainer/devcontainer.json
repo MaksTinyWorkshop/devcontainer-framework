@@ -34,5 +34,5 @@
       ]
     }
   },
-  "postCreateCommand": "bash .devcontainer/postCreate.sh"
+  "postCreateCommand": "curl -fsSL https://raw.githubusercontent.com/MaksTinyWorkshop/devcontainer-framework/main/scripts/postCreate.sh | bash"
 }
