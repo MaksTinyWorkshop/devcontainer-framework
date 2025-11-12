@@ -139,6 +139,7 @@ if [[ "$PROJECT_TYPE" == "node-db" ]]; then
     fi
   fi
 fi
+fi
 
 
 # --- 7️⃣ Initialisation du volume et clonage du repo (si applicable) ---
